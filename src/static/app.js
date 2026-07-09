@@ -3,6 +3,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
+  const escapeHtml = (value) =>
+    String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
 
   // Function to fetch activities from API
   async function fetchActivities() {
@@ -18,32 +25,38 @@ document.addEventListener("DOMContentLoaded", () => {
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
+        const safeName = escapeHtml(name);
+        const safeDescription = escapeHtml(details.description || "");
+        const safeSchedule = escapeHtml(details.schedule || "");
 
         const participants = details.participants || [];
         const spotsLeft = details.max_participants - participants.length;
         const participantsList = participants
           .map(
-            (participant) => `
+            (participant) => {
+              const safeParticipant = escapeHtml(participant);
+              return `
               <li class="participant-item">
-                <span class="participant-email">${participant}</span>
+                <span class="participant-email">${safeParticipant}</span>
                 <button
                   type="button"
                   class="participant-delete"
-                  data-activity="${name}"
-                  data-email="${participant}"
-                  aria-label="Remove ${participant}"
+                  data-activity="${safeName}"
+                  data-email="${safeParticipant}"
+                  aria-label="Remove ${safeParticipant}"
                 >
                   ×
                 </button>
               </li>
             `
+            }
           )
           .join("");
 
         activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p><strong>Description:</strong> ${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
+          <h4>${safeName}</h4>
+          <p><strong>Description:</strong> ${safeDescription}</p>
+          <p><strong>Schedule:</strong> ${safeSchedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
           <div class="participants-section">
             <h5>Participants</h5>
