@@ -107,3 +107,18 @@ def test_unregister_unknown_participant_returns_404(client):
     # Assert
     assert response.status_code == 404
     assert response.json() == {"detail": "Participant not found"}
+
+
+def test_unregister_unknown_activity_returns_404(client):
+    # Arrange
+    activity_name = "Unknown Activity"
+    email = "newstudent@mergington.edu"
+
+    # Act
+    response = client.delete(
+        f"/activities/{activity_name}/participants/{email}"
+    )
+
+    # Assert
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Activity not found"}
